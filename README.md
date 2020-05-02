@@ -26,13 +26,18 @@ Active Directory spraying nozzle using the LDAP protocol
 ## Usage Examples
 **Domain Joined Spray**
 SharpHose.exe --action SPRAY_USERS --spraypassword Spring2020! --output c:\temp\
+
 **Domain Joined Spray w/ Exclusions**
 SharpHose.exe --action SPRAY_USERS --spraypassword Spring2020! --output c:\temp\ --exclude c:\temp\exclusion_list.txt
+
 **Non-Domain Joined Spray**
 SharpHose.exe --action SPRAY_USERS --spraypassword Spring2020! --domain lab.local --username demo --password DemoThePlanet --output c:\temp\
+
 **Domain Joined Show Policies**
 SharpHose.exe --action GET_POLICIES --output c:\temp\
+
 **Domain Joined Show Policy Users**
 SharpHose.exe --action GET_POLICY_USERS --policy lab --output c:\temp\
+
 **Domain Joined Show All Users**
 SharpHose.exe --action GET_ENABLED_USERS --output c:\temp\
