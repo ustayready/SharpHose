@@ -229,6 +229,11 @@ namespace SharpHose.Nozzles.LDAP
         {
             var count = DisplayPolicyUsers(policy.Name, true);
 
+            var lockoutDurationTs = new TimeSpan(policy.LockoutDuration * -1);
+            var lockoutObservationWindowTs = new TimeSpan(policy.LockoutObservationWindow * -1);
+            var MinimumPasswordAgeTs = new TimeSpan(policy.MinimumPasswordAge * -1);
+            var MaximumPasswordAgeTs = new TimeSpan(policy.MaximumPasswordAge * -1);
+
             _logger.Log($"-----------------------------------");
             _logger.Log($"Name: {policy.Name}");
             _logger.Log($"Order Precedence: {policy.PasswordPrecendence}");
@@ -237,9 +242,9 @@ namespace SharpHose.Nozzles.LDAP
             if (policy.IsFineGrained) { _logger.Log($"Applied to: {policy.AppliesToUsers.Count} users"); }
             _logger.Log($"Minimum Password Length: {policy.MinimumPasswordLength}");
             _logger.Log($"Lockout Threshold: {policy.LockoutThreshold}");
-            _logger.Log($"Lockout Duration: {policy.LockoutDuration}");
-            _logger.Log($"Lockout Observation Window: {policy.LockoutObservationWindow}");
-            _logger.Log($"Minimum / Maximum Password Age: {policy.MinimumPasswordAge} / {policy.MaximumPasswordAge}");
+            _logger.Log($"Lockout Duration: {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", lockoutDurationTs)}");
+            _logger.Log($"Lockout Observation Window: {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", lockoutObservationWindowTs)}");
+            _logger.Log($"Minimum / Maximum Password Age: {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", MinimumPasswordAgeTs)} / {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", MaximumPasswordAgeTs)}");
             _logger.Log($"Password History Length: {policy.PasswordHistoryLength}");
             _logger.Log($"Applies to: {count} users");
 
@@ -262,9 +267,9 @@ namespace SharpHose.Nozzles.LDAP
                 if (policy.IsFineGrained) { contents += $"Applied to: {policy.AppliesToUsers.Count} users\n"; }
                 contents += $"Minimum Password Length: {policy.MinimumPasswordLength}\n";
                 contents += $"Lockout Threshold: {policy.LockoutThreshold}\n";
-                contents += $"Lockout Duration: {policy.LockoutDuration}\n";
-                contents += $"Lockout Observation Window: {policy.LockoutObservationWindow}\n";
-                contents += $"Minimum / Maximum Password Age: {policy.MinimumPasswordAge} / {policy.MaximumPasswordAge}\n";
+                contents += $"Lockout Duration: {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", lockoutDurationTs)}\n";
+                contents += $"Lockout Observation Window: {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", lockoutObservationWindowTs)}\n";
+                contents += $"Minimum / Maximum Password Age: {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", MinimumPasswordAgeTs)} / {string.Format("{0:%d}d {0:%h}h {0:%m}m {0:%s}s", MaximumPasswordAgeTs)}\n";
                 contents += $"Password History Length: {policy.PasswordHistoryLength}\n";
                 contents += $"Applies to: {count} users\n";
 
