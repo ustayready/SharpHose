@@ -41,3 +41,5 @@ SharpHose.exe --action GET_POLICY_USERS --policy lab --output c:\temp\
 
 **Domain Joined Show All Users**
 SharpHose.exe --action GET_ENABLED_USERS --output c:\temp\
+##Shout-Outs
+- Major props to the CrowdStrike Red Team Labs.. Stay tuned for new hotness! https://www.crowdstrike.com/blog/author/red-team-labs/
