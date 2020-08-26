@@ -1,4 +1,4 @@
-﻿using SharpHose.Common.Enums;
+using SharpHose.Common.Enums;
 using SharpHose.Common.Objects;
 using System;
 using System.DirectoryServices;
@@ -31,12 +31,30 @@ namespace SharpHose.Nozzles.LDAP
             long badPasswordTime = 0;
             if (result.Properties.Contains("badPasswordTime"))
                 long.TryParse(result.Properties["badPasswordTime"][0].ToString(), out badPasswordTime);
-            BadPasswordTime = DateTime.FromFileTime(badPasswordTime);
+
+            try
+            {
+                if(badPasswordTime != -1)
+                    BadPasswordTime = DateTime.FromFileTime(badPasswordTime);
+            } catch
+            {
+                throw new Exception($"Bad password time: {badPasswordTime} for {Username}");
+            }
 
             long lockoutTime = 0;
             if (result.Properties.Contains("lockoutTime"))
                 long.TryParse(result.Properties["lockoutTime"][0].ToString(), out lockoutTime);
-            LockoutTime = DateTime.FromFileTime(lockoutTime); ;
+
+            try
+            {
+                if(lockoutTime != -1)
+                    LockoutTime = DateTime.FromFileTime(lockoutTime);
+            }
+            catch
+            {
+                throw new Exception($"Bad lockout time: {lockoutTime} for {Username}");
+            }
+            
 
             int lockoutDuration = 0;
             if (result.Properties.Contains("lockoutDuration"))
@@ -46,7 +64,17 @@ namespace SharpHose.Nozzles.LDAP
             long pwdLastSet = 0;
             if (result.Properties.Contains("pwdLastSet"))
                 long.TryParse(result.Properties["pwdLastSet"][0].ToString(), out pwdLastSet);
-            PasswordLastSet = DateTime.FromFileTime(pwdLastSet);
+
+            try
+            {
+                if (pwdLastSet != -1)
+                    PasswordLastSet = DateTime.FromFileTime(pwdLastSet);
+            }
+            catch
+            {
+                throw new Exception($"Bad password last set time: {pwdLastSet} for {Username}");
+            }
+            
         }
     }
 }
