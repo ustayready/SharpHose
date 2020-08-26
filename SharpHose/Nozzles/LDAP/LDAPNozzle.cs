@@ -1,4 +1,4 @@
-﻿using SharpHose.Common.Enums;
+using SharpHose.Common.Enums;
 using SharpHose.Common.Helpers;
 using SharpHose.Common.Objects;
 using System;
@@ -35,7 +35,7 @@ namespace SharpHose.Nozzles.LDAP
         {
             Users = new List<UserInfo>();
             Config = config;
-            
+
             _logger = Config.Logger;
 
             PrepareNozzle();
@@ -44,7 +44,6 @@ namespace SharpHose.Nozzles.LDAP
         public override void Start()
         {
             CurrentState = SprayState.START;
-
 
             var excluded = new List<string>();
             if (Config.ExcludeUsers)
@@ -110,7 +109,7 @@ namespace SharpHose.Nozzles.LDAP
                 }
             }
 
-            if(Config.SaveOutput)
+            if (Config.SaveOutput)
             {
                 File.WriteAllText(filePath, contents);
             }
@@ -170,7 +169,7 @@ namespace SharpHose.Nozzles.LDAP
                     {
                         _logger.Log($"User: {user}");
 
-                        if(Config.SaveOutput)
+                        if (Config.SaveOutput)
                             contents += $"{user}\n";
                     }
 
@@ -179,7 +178,8 @@ namespace SharpHose.Nozzles.LDAP
 
                     _logger.Log($"-----------------------------------");
                 }
-            } else
+            }
+            else
             {
                 _logger.Log($"Policy not found: {policyName}");
             }
@@ -248,14 +248,14 @@ namespace SharpHose.Nozzles.LDAP
             _logger.Log($"Password History Length: {policy.PasswordHistoryLength}");
             _logger.Log($"Applies to: {count} users");
 
-            if(Config.SaveOutput)
+            if (Config.SaveOutput)
             {
                 var cleanPolicyName = Regex.Replace(policy.Name, "[^a-zA-Z0-9_.]+", "", RegexOptions.Compiled);
                 var now = DateTime.Now;
                 var fileNameNow = now.ToString("yyyyMddHHmm");
                 var fileName = $"policy_{cleanPolicyName}_{fileNameNow}.txt";
                 var filePath = Path.Combine(Config.OutputPath, fileName);
-                
+
                 var contents = string.Empty;
                 var fileNow = now.ToString("MM/dd/yyyy h:mm tt");
 
@@ -276,7 +276,7 @@ namespace SharpHose.Nozzles.LDAP
                 File.WriteAllText(filePath, contents);
             }
         }
-        
+
 
         private async Task<bool> TryCredentialsAsync(string username, string password)
         {
@@ -309,10 +309,13 @@ namespace SharpHose.Nozzles.LDAP
                 try
                 {
                     return Dns.GetHostEntry(reply.Address.ToString()).HostName;
-                } catch {
+                }
+                catch
+                {
                     return reply.Address.ToString();
                 }
-            } else
+            }
+            else
             {
                 return string.Empty;
             }
@@ -341,7 +344,8 @@ namespace SharpHose.Nozzles.LDAP
                     AuthPrincipalContext = true;
 
                     DirectoryEntry = new DirectoryEntry($"LDAP://{Config.DomainName}");
-                } else
+                }
+                else
                 {
                     _logger.Log("[-] Cannot find domain controller from domain name.");
                     Environment.Exit(0);
@@ -353,6 +357,8 @@ namespace SharpHose.Nozzles.LDAP
                 {
                     Config.DomainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
                     Config.DomainController = ActiveDirectorySite.GetComputerSite().InterSiteTopologyGenerator.Name;
+
+                    _logger.Log($"[-] Retrieved domain and controller: {Config.DomainName} / {Config.DomainController}");
 
                     DirectoryContext = new DirectoryContext(
                         DirectoryContextType.DirectoryServer,
@@ -372,7 +378,7 @@ namespace SharpHose.Nozzles.LDAP
 
         private PrincipalContext GetPrincipalContext()
         {
-            if(AuthPrincipalContext)
+            if (AuthPrincipalContext)
             {
                 return new PrincipalContext(
                     ContextType.Domain,
@@ -392,6 +398,8 @@ namespace SharpHose.Nozzles.LDAP
 
         private List<string> GetPasswordPolicyUsers(LDAPPasswordPolicy policy)
         {
+            _logger.Log($"[-] Retrieving users for policy: {policy.Name}");
+
             var users = new List<string>();
             policy.AppliesToDN.ForEach(a =>
             {
@@ -434,8 +442,9 @@ namespace SharpHose.Nozzles.LDAP
             Policies.Add(GetDomainPolicy());
 
             var fineGrainedPolicies = GetFineGrainedPolicies();
+
             fineGrainedPolicies.ForEach(x => x.AppliesToUsers = GetPasswordPolicyUsers(x));
-            
+
             Policies.AddRange(fineGrainedPolicies);
         }
 
@@ -493,9 +502,9 @@ namespace SharpHose.Nozzles.LDAP
             return policies;
         }
 
-        public void LockoutAccount(string username, int count=10)
+        public void LockoutAccount(string username, int count = 10)
         {
-            for(var i = 0; i<count; i++)
+            for (var i = 0; i < count; i++)
             {
                 using (var context = GetPrincipalContext())
                 {
@@ -510,6 +519,8 @@ namespace SharpHose.Nozzles.LDAP
 
         private void GetUsers()
         {
+            _logger.Log("[-] Querying for users...");
+
             try
             {
                 var userSearch = new DirectorySearcher(DirectoryEntry);
@@ -524,18 +535,24 @@ namespace SharpHose.Nozzles.LDAP
                 userSearch.SearchScope = SearchScope.Subtree;
 
                 var results = userSearch.FindAll();
+
                 if (results != null)
                 {
                     for (var i = 0; i < results.Count; i++)
                     {
                         LDAPPasswordPolicy policy;
                         var user = new LDAPUserInfo(results[i]);
+                        currentuser = i;
 
                         policy = user.GetUserPolicy(Policies);
                         user = user.ClassifyUser(policy);
 
+                        lastuser = i;
+
                         Users.Add(user);
                     }
+
+                    _logger.Log($"[-] Total Users: {Users.Count}");
                 }
                 else
                 {
@@ -545,9 +562,11 @@ namespace SharpHose.Nozzles.LDAP
 
                 _logger.Log($"Queried {results.Count} users w/ {Policies.Count} password policies identified...");
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.Log("[-] Failed to find or connect to Active Directory.");
+                _logger.Log("[-] Failed to find or connect to Active Directory, or another issue occurred.");
+                _logger.Log($"[-] Exception: {ex}");
+
                 Environment.Exit(0);
             }
         }
