@@ -542,12 +542,9 @@ namespace SharpHose.Nozzles.LDAP
                     {
                         LDAPPasswordPolicy policy;
                         var user = new LDAPUserInfo(results[i]);
-                        currentuser = i;
 
                         policy = user.GetUserPolicy(Policies);
                         user = user.ClassifyUser(policy);
-
-                        lastuser = i;
 
                         Users.Add(user);
                     }
