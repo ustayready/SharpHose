@@ -19,6 +19,7 @@ namespace SharpHose
                 config.HelpWriter = null;
                 config.CaseInsensitiveEnumValues = true;
             });
+
             var parserResult = parser.ParseArguments<CLIOptions>(args);
 
             parserResult
@@ -36,6 +37,7 @@ namespace SharpHose
                 h.AddEnumValuesToHelpText = true;
                 return h;
             }, e => e);
+
             Console.WriteLine(helpText);
 
             foreach (var error in errs)
@@ -66,19 +68,19 @@ namespace SharpHose
 
         static void Run(CLIOptions opts)
         {
-            if ((string.IsNullOrEmpty(opts.SprayPassword)) && (opts.Action == LDAPAction.SPRAY_USERS))
+            if (opts.SprayPassword == null && opts.Action == LDAPAction.SPRAY_USERS)
             {
                 Console.WriteLine("Please supply a password to spray: ");
                 var response = Console.ReadLine();
 
-                if (!string.IsNullOrEmpty(response))
+                if (opts.SprayPassword != null)
                 {
                     opts.SprayPassword = response;
                 }
                 else
                 {
                     Console.WriteLine($"Missing --spraypassword argument.");
-                    Environment.Exit(0);
+                    return;
                 }
             }
 
@@ -94,7 +96,7 @@ namespace SharpHose
                 else
                 {
                     Console.WriteLine($"Missing --policy argument.");
-                    Environment.Exit(0);
+                    return;
                 }
             }
 
@@ -110,7 +112,7 @@ namespace SharpHose
                 else
                 {
                     Console.WriteLine($"Missing --output argument while using --quiet.");
-                    Environment.Exit(0);
+                    return;
                 }
             }
 
