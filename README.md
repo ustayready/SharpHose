@@ -69,7 +69,3 @@ SharpHose.exe --action GET_ENABLED_USERS --output c:\temp\
 **Domain Joined Spray Using Cobalt Strike**
 execute-assembly /path/to/SharpHose.exe --action SPRAY_USERS --spraypassword Spring2020! --output c:\temp\ --auto
 
-## Shout-Outs
-
-- CrowdStrike Red Team Labs.. Stay tuned for new hotness! https://www.crowdstrike.com/blog/author/red-team-labs/
-  *pss.. if you didn't know, CrowdStrike offers Red Team Services and the operators have some killer tradecraft :)*
