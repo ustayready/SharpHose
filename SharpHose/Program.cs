@@ -66,12 +66,12 @@ namespace SharpHose
 
         static void Run(CLIOptions opts)
         {
-            if ((string.IsNullOrEmpty(opts.SprayPassword)) && (opts.Action == LDAPAction.SPRAY_USERS))
+            if (opts.SprayPassword == null && opts.Action == LDAPAction.SPRAY_USERS)
             {
                 Console.WriteLine("Please supply a password to spray: ");
                 var response = Console.ReadLine();
 
-                if (!string.IsNullOrEmpty(response))
+                if (opts.SprayPassword != null)
                 {
                     opts.SprayPassword = response;
                 }
